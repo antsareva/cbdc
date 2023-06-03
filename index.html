@@ -147,11 +147,11 @@
 
     function nextStep(answer) {
         answerTrack.push(answer);
-        while (answers[currentQuestion][currentColumn] != answer) {
+        while (answers[currentQuestion][currentColumn] !== answer) {
             currentColumn++;
         }
 
-        var nonSelectedOptionIndex = answer == 1 ? 1 : 0;
+        var nonSelectedOptionIndex = answer === 1 ? 1 : 0;
         document.getElementById('history-list').innerHTML += "<li><span class='question'>" + questions[currentQuestion] + "</span><span class='option selected-option'>Selected Option: " + options[currentQuestion][answer - 1] + "</span><span class='option non-selected-option'>Other Option: " + options[currentQuestion][nonSelectedOptionIndex] + "</span></li>";
         document.getElementById('history').style.display = "block";
 
@@ -159,9 +159,11 @@
         previousColumnStack.push(currentColumn);
         if (currentQuestion < questions.length - 1) {
             currentQuestion++;
-            while (answers[currentQuestion + 1][currentColumn] == null) {
+            while (currentQuestion < questions.length - 1 && answers[currentQuestion][currentColumn] == null) {
                 currentQuestion++;
             }
+        }
+        if (currentQuestion < questions.length - 1) {
             updateQuestionAndOptions();
         } else {
             document.getElementById('question-container').style.display = "none";
