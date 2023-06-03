@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>CBDC Architecture Decision Tree</title>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -126,48 +125,56 @@
     ];
 
     var answers = [
-        [1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1],
-        [2,2,1,1,1,1,1,1,2,2,1,1,2,2,1,1,1,1,1,1,2,2,1,1,2,1,1,1,2,1,1,1,2,2,1,1],
-        [null,null,1,1,2,2,1,1,null,null,2,2,null,null,1,1,2,2,1,1,null,null,2,2,null,1,2,1,null,2,null,null,1,1,2,2],
-        [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
-        [1,2,1,2,1,2,1,2,1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,1,2,1,2],
-        [null,1,null,1,null,1,null,1,null,1,null,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,null,1,null,1,null,1],
-        [null,1,null,1,null,1,null,1,null,1,null,1,2,1,2,1,2,1,2,1,2,1,2,1,null,null,null,null,null,null,null,1,null,1,null,1],
-        [null,1,null,1,null,1,null,1,null,1,null,1,null,2,null,2,null,2,null,2,null,2,null,2,null,null,null,null,null,null,null,1,null,1,null,1]
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2],
+        [1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,null,null,null,null,null,null,null,null,null,null,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,null,null,null,null,null,null,null,null,null,null],
+        [1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2],
+        [1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2,1,2,2,2,2],
+        [null,1,1,1,2,null,1,1,1,2,null,1,1,1,2,null,1,1,1,2,null,1,1,1,2,null,1,1,1,2,null,1,1,1,2,null,1,1,1,2,null,1,1,1,2,null,1,1,1,2,null,1,1,1,2,null,1,1,1,2],
+        [null,1,1,2,null,null,1,1,2,null,null,1,1,2,null,null,1,1,2,null,null,1,1,2,null,null,1,1,2,null,null,1,1,2,null,null,1,1,2,null,null,1,1,2,null,null,1,1,2,null,null,1,1,2,null,null,1,1,2,null],
+        [null,1,2,null,null,null,1,2,null,null,null,1,2,null,null,null,1,2,null,null,null,1,2,null,null,null,1,2,null,null,null,1,2,null,null,null,1,2,null,null,null,1,2,null,null,null,1,2,null,null,null,1,2,null,null,null,1,2,null,null],
     ];
 
+    var pictures = [
+        20,20,26,26,32,2,2,8,8,14,21,21,27,27,33,3,3,9,9,15,19,19,25,25,31,1,1,7,7,13,22,22,28,28,34,4,4,10,10,16,24,24,30,30,36,6,6,12,12,18,23,23,29,29,35,5,5,11,11,17
+    ]
+
     var currentQuestion = 0;
+    var currentColumn = 0;
     var answerTrack = [];
     var previousQuestionStack = [];
+    var previousColumnStack = [];
 
     function nextStep(answer) {
         answerTrack.push(answer);
+        while (answers[currentQuestion][currentColumn] != answer) {
+            currentColumn++;
+        }
 
         var nonSelectedOptionIndex = answer == 1 ? 1 : 0;
         document.getElementById('history-list').innerHTML += "<li><span class='question'>" + questions[currentQuestion] + "</span><span class='option selected-option'>Selected Option: " + options[currentQuestion][answer - 1] + "</span><span class='option non-selected-option'>Other Option: " + options[currentQuestion][nonSelectedOptionIndex] + "</span></li>";
         document.getElementById('history').style.display = "block";
 
         previousQuestionStack.push(currentQuestion);
+        previousColumnStack.push(currentColumn);
         if (currentQuestion < questions.length - 1) {
             currentQuestion++;
+            while (answers[currentQuestion + 1][currentColumn] == null) {
+                currentQuestion++;
+            }
             updateQuestionAndOptions();
         } else {
             document.getElementById('question-container').style.display = "none";
             document.getElementById('picture-container').style.display = "block";
 
-            var pictureIndex = 1;
-            for (var i = 0; i < answerTrack.length; i++) {
-                if (answers[i].includes(answerTrack[i])) {
-                    pictureIndex = answers[i].indexOf(answerTrack[i]) + 1;
-                }
-            }
-            document.getElementById('picture').src = "img/Slide" + pictureIndex + ".JPG";
+            document.getElementById('picture').src = "img/Slide" + pictures[currentColumn] + ".JPG";
         }
     }
 
     function previousStep() {
         if (previousQuestionStack.length > 0) {
             currentQuestion = previousQuestionStack.pop();
+            currentColumn = previousColumnStack.pop();
             answerTrack.pop();
             document.getElementById('history-list').lastChild.remove();
             document.getElementById('question').textContent = questions[currentQuestion];
