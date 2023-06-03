@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CBDC Architecture Decision Tree</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            overflow: auto;
+            padding-top: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #picture-container, #history {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-width: 80%;
+            min-width: 80%;
+        }
+        #question-container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-width: 80%;
+            min-width: 80%;
+            font-size: 1.1em; /* Increase the font size in question container */
+            font-weight: bold;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #bdd7ee;
+            color: black;
+            cursor: pointer;
+            width: 40%;  /* Width of button */
+            white-space: normal; /* Allow text to wrap */
+            font-size: 0.9em; /* Increase the font size on buttons */
+        }
+        #history h2 {
+            margin-bottom: 10px;
+        }
+        li {
+            margin: 10px 0;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+        }
+        #picture-container img {
+            max-width: 100%;
+            height: auto;
+        }
+        .question {
+            /*font-weight: bold;*/
+        }
+        .selected-option {
+            font-weight: bold;
+            color: black;
+        }
+        .non-selected-option {
+            color: grey;
+        }
+        .option {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<h1>CBDC Architecture Decision Tree</h1>
+
+<div id="question-container">
+    <p id="question"></p>
+    <button id="option1" onclick="nextStep(1)"></button>
+    <button id="option2" onclick="nextStep(2)"></button>
+    <button id="back" onclick="previousStep()" style="background-color: #FDB7B7;">Back</button> <!-- Back button -->
+</div>
+
+<div id="picture-container" style="display: none;">
+    <img id="picture" src="">
+    <button onclick="resetChoices()" style="background-color: #FDB7B7;">Make new design choice</button> <!-- Reset button -->
+</div>
+
+<div id="history" style="display: none;">
+    <h2>Your Choices:</h2>
+    <ul id="history-list"></ul>
+</div>
+
+<script>
+    var questions = [
+        "How should information on transactions be shared?",
+        "Who should be responsible for validating and executing transactions?",
+        "What should be the role of the CB in validating transactions?",
+        "Which is the first priority, smart contracts and system performance or privacy options for retail users?",
+        "Is offline functionality required?",
+        "Which is the first priority, security or performance (including high transaction speed and scalability)?",
+        "Can the existing infrastructure adequately support private key storage and management?",
+        "Are users competent enough to handle their private keys securely?"
+    ];
+
+    var options = [
+        ["Among all participants in the CBDC Platform", "Only between participants engaged in a transaction"],
+        ["Participants validate and execute transactions", "Participants are responsible only for customer interaction functionality (retail transactions are executed solely by the CB)"],
+        ["The CB validates the whole transaction", "The CB conducts only double-spending checks (sees only transaction and token IDs)"],
+        ["Ability to implement smart contracts and higher system performance", "Greater privacy options for retail users"],
+        ["Offline functionality is required", "Offline functionality will not be implemented"],
+        ["Security: protection against unauthorized modifications or fraudulent activities", "Performance including high transaction speed and scalability"],
+        ["The existing infrastructure (mobile devices or secure hardware) can adequately support private key storage and management", "The existing infrastructure is not capable to adequately support private key storage and management"],
+        ["User competence is enough to handle their private keys securely", "Users are not competent enough to handle their private keys securely"]
+    ];
+
+    var answers = [
+        [1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1,1,2,2,1],
+        [2,2,1,1,1,1,1,1,2,2,1,1,2,2,1,1,1,1,1,1,2,2,1,1,2,1,1,1,2,1,1,1,2,2,1,1],
+        [null,null,1,1,2,2,1,1,null,null,2,2,null,null,1,1,2,2,1,1,null,null,2,2,null,1,2,1,null,2,null,null,1,1,2,2],
+        [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+        [1,2,1,2,1,2,1,2,1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,1,2,1,2],
+        [null,1,null,1,null,1,null,1,null,1,null,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,null,1,null,1,null,1],
+        [null,1,null,1,null,1,null,1,null,1,null,1,2,1,2,1,2,1,2,1,2,1,2,1,null,null,null,null,null,null,null,1,null,1,null,1],
+        [null,1,null,1,null,1,null,1,null,1,null,1,null,2,null,2,null,2,null,2,null,2,null,2,null,null,null,null,null,null,null,1,null,1,null,1]
+    ];
+
+    var currentQuestion = 0;
+    var answerTrack = [];
+    var previousQuestionStack = [];
+
+    function nextStep(answer) {
+        answerTrack.push(answer);
+
+        var nonSelectedOptionIndex = answer == 1 ? 1 : 0;
+        document.getElementById('history-list').innerHTML += "<li><span class='question'>" + questions[currentQuestion] + "</span><span class='option selected-option'>Selected Option: " + options[currentQuestion][answer - 1] + "</span><span class='option non-selected-option'>Other Option: " + options[currentQuestion][nonSelectedOptionIndex] + "</span></li>";
+        document.getElementById('history').style.display = "block";
+
+        previousQuestionStack.push(currentQuestion);
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            updateQuestionAndOptions();
+        } else {
+            document.getElementById('question-container').style.display = "none";
+            document.getElementById('picture-container').style.display = "block";
+
+            var pictureIndex = 1;
+            for (var i = 0; i < answerTrack.length; i++) {
+                if (answers[i].includes(answerTrack[i])) {
+                    pictureIndex = answers[i].indexOf(answerTrack[i]) + 1;
+                }
+            }
+            document.getElementById('picture').src = "img/Slide" + pictureIndex + ".jpg";
+        }
+    }
+
+    function previousStep() {
+        if (previousQuestionStack.length > 0) {
+            currentQuestion = previousQuestionStack.pop();
+            answerTrack.pop();
+            document.getElementById('history-list').lastChild.remove();
+            document.getElementById('question').textContent = questions[currentQuestion];
+            document.getElementById('option1').textContent = options[currentQuestion][0];
+            document.getElementById('option2').textContent = options[currentQuestion][1];
+        }
+    }
+
+    function resetChoices() {
+        document.getElementById('picture-container').style.display = "none";
+        document.getElementById('question-container').style.display = "block";
+        document.getElementById('history-list').innerHTML = '';
+        currentQuestion = 0;
+        answerTrack = [];
+        previousQuestionStack = [];
+        document.getElementById('question').textContent = questions[currentQuestion];
+        document.getElementById('option1').textContent = options[currentQuestion][0];
+        document.getElementById('option2').textContent = options[currentQuestion][1];
+        document.getElementById('history').style.display = "none";  // hide history section
+    }
+
+    document.getElementById('question').textContent = questions[currentQuestion];
+    document.getElementById('option1').textContent = options[currentQuestion][0];
+    document.getElementById('option2').textContent = options[currentQuestion][1];
+
+    function updateQuestionAndOptions() {
+        document.getElementById('question').textContent = questions[currentQuestion];
+        document.getElementById('option1').textContent = options[currentQuestion][0];
+        document.getElementById('option2').textContent = options[currentQuestion][1];
+    }
+
+    updateQuestionAndOptions();
+</script>
+</body>
+</html>
